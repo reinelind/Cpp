@@ -3,83 +3,98 @@
 
 
 #include <iostream>
+#include <iterator>
+#include <vector>
+#include <algorithm>
 #include <string>
+#include <numeric>
+
+int maxDamageNumber(std::vector <int> damage) {
+    int max = 0;
+    for (int i = 0; i < damage.size(); i++) {
+        if (damage[i] > 0)
+            if (damage[i] > max)
+                max = damage[i];
+    }
+
+    return max;
+}
+
+int minDamageNumber(std::vector <int> damage) {
+    int min = std::numeric_limits<int>::max();
+    for (int i = 0; i < damage.size(); i++) {
+        if (damage[i] > 0)
+            if (damage[i] < min)
+                min = damage[i];
+    }
+    return min;
+}
+
+std::vector <int> vectorHeal (std::vector <int> damage) {
+    std::vector <int> healVectorNumbers;
+    for (int i = 0; i < damage.size(); i++) {
+        if (damage[i] < 0)
+            healVectorNumbers.push_back(i + 1);
+    }
+
+    return healVectorNumbers;
+}
+
+int sumOfAction(std::vector <int> damage, const std::string & action) {
+    int sum = 0;
+    std::vector <int> actionBiasedVector;
+    for (int i = 0; i < damage.size(); i++) {
+        if (action == "damage")
+            if (damage[i] > 0)
+                actionBiasedVector.push_back(damage[i]);
+        if (action == "heal")
+            if (damage[i] < 0)
+                actionBiasedVector.push_back(abs(damage[i]));
+    }
+
+    return std::accumulate(actionBiasedVector.begin(), actionBiasedVector.end(),0);
+}
+
+std::vector <int> getNoActionNumbers(std::vector <int> damage) {
+    std::vector <int> noActionNumbers;
+    for (int i = 0; i < damage.size(); i++) {
+        if (damage[i] == 0)
+            noActionNumbers.push_back(i + 1);
+    }
+
+    return noActionNumbers;
+}
+
+
+
 int main()
 {
-
-    enum characterClass {
-        wizard,
-        warrior
-    } character;
-    std::string name;
-    float health;
-    float thirdOfHealth;
-    int power;
-
+    std::vector <int> damageValues;
+    int damage;
+    int number = 1;
     
+    std::cout << "Number " << number << " dealt damage: " << std::endl;
+
+    while (std::cin >> damage) {
+        
+        damageValues.push_back(damage);
+        std::cout << "Number " << ++number << " damage dealt" << std::endl;
+    }
+
+
+    std::cout << "Number of Max Damage: " << maxDamageNumber(damageValues) << std::endl;
+    std::cout << "Number of Min Damage: " << minDamageNumber(damageValues) << std::endl;
+    std::cout << "Number of Healing Action: ";
+    for (int element : vectorHeal(damageValues))
+        std::cout << element << " ";
+    std::cout << std::endl;
+
+    std::cout << "Sum Of Damage: " << sumOfAction(damageValues, "damage") << std::endl;
+    std::cout << "Sum Of Heal " << sumOfAction(damageValues, "heal") << std::endl;
+    std::cout << "No damage/heal dealt numbers: ";
+    for (int element : getNoActionNumbers(damageValues))
+        std::cout << element << " ";
     
-    unsigned int inputClass;
-
-    std::cout << "Enter a name of character" << std::endl;
-    std::cin >> name; 
-    std::cout << "Enter health as an int number (0-200)" << std::endl;
-    std::cin >> health;
-    if (health < 0 || health > 200) {
-        std::cerr << "Health is not valid (0 - 200)" << std::endl;
-        return 1;
-    }
-
-    std::cout << "Enter power as an int number (0-100)" << std::endl;
-    std::cin >> power;
-    if (power < 0 || power > 100) {
-        std::cerr << "Power is not valid (0 - 100)" << std::endl;
-        return 2;
-    }
-
-    std::cout << "Enter a class of character (1 - wizard, 2 - warrior)" << std::endl;
-    std::cin >> inputClass;
-
-    switch (inputClass) {
-        case 1: 
-            character = wizard;
-            break;
-        case 2:
-            character = warrior;
-            break;
-        default:
-            std::cerr << "Character type is not valid!" << std::endl;
-            return 2;
-    }
-
-    thirdOfHealth = health * 0.3;
-
-    while (health > 0) {
-        int damage; 
-        float oldHealth = health;
-
-        std::cout << "Enter damage dealt to character" << std::endl;
-        std::cin >> damage;
-        if (character == wizard) {
-            if (damage > 2 * power) {
-                if (rand() % 2)
-                    health = health - (damage % 2 == 0 ? damage * 2 : damage);
-                else std::cout << "No damage dealt" << std::endl;
-            } else health = health - (damage % 2 == 0 ? damage * 2 : damage);
-        }
-
-        if (character == warrior) {
-            if (health < thirdOfHealth) {
-                damage = damage - power;
-                std::cout << "Damage decreased to " << damage << std::endl;
-            }
-            health = health - (damage % 2 == 1 ? damage * 3 : 0);
-        }
-
-        std::cout << "Character " << name << " stats:" << std::endl;
-        std::cout << "Health is " << health << std::endl;
-        std::cout << "Power is " << power << std::endl;
-        std::cout << "Damage dealt " << oldHealth - health << std::endl;
-    }
 
     return 0;
 }
