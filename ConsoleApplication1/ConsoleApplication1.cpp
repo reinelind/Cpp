@@ -9,94 +9,82 @@
 #include <string>
 #include <numeric>
 
-int maxDamageNumber(std::vector <int> damage) {
+enum typeCharacter {
+    warrior,
+    wizard,
+    archer,
+    rogue
+
+};
+
+struct Character {
+    int id;
+    typeCharacter type;
+    float meleeDamage;
+    float rangeDamage;
+};
+
+
+Character getTheMostPowerful(std::vector <Character> characterVector) {
     int max = 0;
-    for (int i = 0; i < damage.size(); i++) {
-        if (damage[i] > 0)
-            if (damage[i] > max)
-                max = damage[i];
+    Character thePowerfulCharacter;
+    for (Character character : characterVector) {
+        if (character.meleeDamage + character.rangeDamage > max) {
+            thePowerfulCharacter = character;
+            max = character.meleeDamage + character.rangeDamage;
+        }
     }
 
-    return max;
+    return thePowerfulCharacter;
 }
 
-int minDamageNumber(std::vector <int> damage) {
-    int min = std::numeric_limits<int>::max();
-    for (int i = 0; i < damage.size(); i++) {
-        if (damage[i] > 0)
-            if (damage[i] < min)
-                min = damage[i];
-    }
-    return min;
+typeCharacter hashit(std::string const& inString) {
+    if (inString == "warrior") return warrior;
+    if (inString == "wizard") return wizard;
+    if (inString == "archer") return archer;
+    if (inString == "rogue") return rogue;
 }
-
-std::vector <int> vectorHeal (std::vector <int> damage) {
-    std::vector <int> healVectorNumbers;
-    for (int i = 0; i < damage.size(); i++) {
-        if (damage[i] < 0)
-            healVectorNumbers.push_back(i + 1);
-    }
-
-    return healVectorNumbers;
-}
-
-int sumOfAction(std::vector <int> damage, const std::string & action) {
-    int sum = 0;
-    std::vector <int> actionBiasedVector;
-    for (int i = 0; i < damage.size(); i++) {
-        if (action == "damage")
-            if (damage[i] > 0)
-                actionBiasedVector.push_back(damage[i]);
-        if (action == "heal")
-            if (damage[i] < 0)
-                actionBiasedVector.push_back(abs(damage[i]));
-    }
-
-    return std::accumulate(actionBiasedVector.begin(), actionBiasedVector.end(),0);
-}
-
-std::vector <int> getNoActionNumbers(std::vector <int> damage) {
-    std::vector <int> noActionNumbers;
-    for (int i = 0; i < damage.size(); i++) {
-        if (damage[i] == 0)
-            noActionNumbers.push_back(i + 1);
-    }
-
-    return noActionNumbers;
-}
-
-
 
 int main()
 {
-    std::vector <int> damageValues;
-    int damage;
-    int number = 1;
     
-    std::cout << "Number " << number << " dealt damage: " << std::endl;
+    
+    std::vector <Character> characterVector;
 
-    while (std::cin >> damage) {
+    while (1) {
+        int id;
+        std::string type;
+        float meleeAttack;
+        float rangedAttack;
         
-        damageValues.push_back(damage);
-        std::cout << "Number " << ++number << " damage dealt" << std::endl;
+        std::cout << "Enter an ID for character" << std::endl;
+        std::cin >> id;
+        std::cout << "Enter a type" << std::endl;
+        std::cin >> type;
+        std::cout << "Enter a melee attack damage value" << std::endl;
+        std::cin >> meleeAttack;
+        std::cout << "Enter a ranged attack damage value" << std::endl;
+        std::cin >> rangedAttack;
+
+        Character  character;
+        character.id = id;
+        character.type = hashit(type);
+        character.meleeDamage = meleeAttack;
+        character.rangeDamage = rangedAttack;
+
+        characterVector.push_back (character);
+        std::string str;
+        std::cout << "Would you like to continue? Ctrl-Z to end, 'yes' to continue" << std::endl;
+        
+        if (!(std::cin >> str))
+            break;
+            
+
+        
     }
 
+    std::cout << "The powerful character has ID: " << getTheMostPowerful(characterVector).id << std::endl;
 
-    std::cout << "Number of Max Damage: " << maxDamageNumber(damageValues) << std::endl;
-    std::cout << "Number of Min Damage: " << minDamageNumber(damageValues) << std::endl;
-    std::cout << "Number of Healing Action: ";
-    for (int element : vectorHeal(damageValues))
-        std::cout << element << " ";
-    std::cout << std::endl;
-
-    std::cout << "Sum Of Damage: " << sumOfAction(damageValues, "damage") << std::endl;
-    std::cout << "Sum Of Heal " << sumOfAction(damageValues, "heal") << std::endl;
-    std::cout << "No damage/heal dealt numbers: ";
-    for (int element : getNoActionNumbers(damageValues))
-        std::cout << element << " ";
-    
-
-    return 0;
 }
 
 
