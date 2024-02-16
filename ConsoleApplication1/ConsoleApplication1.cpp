@@ -9,81 +9,44 @@
 #include <string>
 #include <numeric>
 
-enum typeCharacter {
-    warrior,
-    wizard,
-    archer,
-    rogue
+class Building {
+public:
+	Building(int id, int maxAge = 0, int initialCost = 0) : Id(id), MaxAge(maxAge), InitialCost(initialCost) {};
 
+	int GetCost() {
+		return InitialCost - (InitialCost * currentAge) / MaxAge;
+	}
+	void ToAge(int years) {
+		if (years > MaxAge) {
+			Destroy();
+			MaxAge = 0;
+		}
+		else
+			currentAge = years;
+	}
+	void Destroy() {
+		std::cout << "Id of destroyed building: " << Id << std::endl;
+	}
+
+	~Building() {
+		Destroy();
+	}
+
+private:
+	int Id;
+	int MaxAge;
+	int InitialCost;
+	int currentAge = 0;
 };
 
-struct Character {
-    int id;
-    typeCharacter type;
-    float meleeDamage;
-    float rangeDamage;
-};
+
+int main() {
+	Building* building1 = new Building(1, 5, 1000);
+	building1->ToAge(2);
+	std::cout << "Cost of building is " << building1->GetCost() << "$" << std::endl;
+	delete building1;
 
 
-Character getTheMostPowerful(std::vector <Character> characterVector) {
-    int max = 0;
-    Character thePowerfulCharacter;
-    for (Character character : characterVector) {
-        if (character.meleeDamage + character.rangeDamage > max) {
-            thePowerfulCharacter = character;
-            max = character.meleeDamage + character.rangeDamage;
-        }
-    }
-
-    return thePowerfulCharacter;
-}
-
-typeCharacter hashit(std::string const& inString) {
-    if (inString == "warrior") return warrior;
-    if (inString == "wizard") return wizard;
-    if (inString == "archer") return archer;
-    if (inString == "rogue") return rogue;
-}
-
-int main()
-{
-    
-    
-    std::vector <Character> characterVector;
-
-    while (1) {
-        int id;
-        std::string type;
-        float meleeAttack;
-        float rangedAttack;
-        
-        std::cout << "Enter an ID for character" << std::endl;
-        std::cin >> id;
-        std::cout << "Enter a type" << std::endl;
-        std::cin >> type;
-        std::cout << "Enter a melee attack damage value" << std::endl;
-        std::cin >> meleeAttack;
-        std::cout << "Enter a ranged attack damage value" << std::endl;
-        std::cin >> rangedAttack;
-
-        Character  character;
-        character.id = id;
-        character.type = hashit(type);
-        character.meleeDamage = meleeAttack;
-        character.rangeDamage = rangedAttack;
-
-        characterVector.push_back (character);
-        std::string str;
-        std::cout << "Would you like to continue? Ctrl-Z to end, 'yes' to continue" << std::endl;
-        
-        if (!(std::cin >> str))
-            break;
-            
-
-        
-    }
-
-    std::cout << "The powerful character has ID: " << getTheMostPowerful(characterVector).id << std::endl;
 
 }
 
