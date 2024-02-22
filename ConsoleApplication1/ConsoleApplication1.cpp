@@ -125,13 +125,14 @@ private:
 class Character {
 public:
 
-	Character(DamageModifier* _modifier, Weapon* _weapon, std::string _name, float _health) : modifier(_modifier), weapon(_weapon), name(_name), enemyHealth(_health) {};
-	void SetWeapon(Weapon* weapon) {
-		this->weapon = weapon;
+	Character(std::unique_ptr<DamageModifier> _modifier, std::unique_ptr<Weapon> _weapon, std::string _name, float _health) 
+		: modifier(std::move(_modifier)), weapon(std::move(_weapon)), name(_name), enemyHealth(_health) {};
+	void SetWeapon(std::unique_ptr<Weapon> _weapon) {
+		weapon = std::move (_weapon);
 	}
 
 	Weapon* GetWeapon() const {
-		return weapon;
+		return weapon.get();
 	}
 
 	float GetModifiedDamage() {
@@ -142,8 +143,8 @@ public:
 		return damage;
 	}
 
-	void setModifier(DamageModifier* modifier) {
-		this->modifier = modifier;
+	void setModifier(std::unique_ptr<DamageModifier> _modifier) {
+		modifier = std::move(_modifier);
 	}
 
 	std::string getName() {
@@ -151,8 +152,8 @@ public:
 	}
 
 private:
-	DamageModifier* modifier;
-	Weapon* weapon;
+	std::unique_ptr <DamageModifier> modifier;
+	std::unique_ptr <Weapon> weapon;
 	std::string name;
 	float enemyHealth;
 };
@@ -162,7 +163,8 @@ int ParityDamageModifier::counter = 0;
 int main() {
 	
 
-	Character* druid = new Character(new ParityDamageModifier(1.25), new MeleeWeapon(25, "claws"), "Lone Druid", 100);
+	std::unique_ptr <Character> druid = std::make_unique <Character>
+		(std::make_unique <ParityDamageModifier> (1.25), std::make_unique <MeleeWeapon> (25, "claws"), "Lone Druid", 100);
 
 	druid->GetModifiedDamage();
 
@@ -174,26 +176,26 @@ int main() {
 
 	
 
-	Character* sorcerer = new Character(new AdditionDamageModifier(25), new MagicalRangedWeapon(10, "rog"), "Crystal Maiden", 100);
+	std::unique_ptr <Character> sorcerer = std::make_unique <Character> (std::make_unique <AdditionDamageModifier> (25), std::make_unique <MagicalRangedWeapon> (10, "rog"), "Crystal Maiden", 100);
 	sorcerer->GetModifiedDamage();
 
 
-	DamageModifier* modifier = nullptr;
-	Character* soldier = new Character(nullptr, new RangedWeapon(35, "bow"), "Bob", 100);;
+	std::unique_ptr <DamageModifier> modifier = nullptr;
+	std::unique_ptr <Character> soldier = std::make_unique <Character> (nullptr, std::make_unique <RangedWeapon> (35, "bow"), "Bob", 100);
 	int num;
 	std::cout << "Select modifier 1: Multiplication; 2: Addition; 3: Parity" << std::endl;
 	while (std::cin >> num) {
 		switch (num) {
 			case 1:
-				soldier->setModifier(new MultiplicationDamageModifier(1.2));
+				soldier->setModifier(std::make_unique <MultiplicationDamageModifier> (1.2));
 				soldier->GetModifiedDamage();
 				break;
 			case 2:
-				soldier->setModifier(new AdditionDamageModifier(10));
+				soldier->setModifier(std::make_unique <AdditionDamageModifier> (10));
 				soldier->GetModifiedDamage();
 				break;
 			case 3:
-				soldier->setModifier(new ParityDamageModifier(1.5));
+				soldier->setModifier(std::make_unique <ParityDamageModifier>(1.5));
 				soldier->GetModifiedDamage();
 				break;
 		}
